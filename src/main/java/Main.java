@@ -1,13 +1,10 @@
+import com.google.gson.Gson;
+import datacore.XmlCDN;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.template.Configuration;
 import route.SenderStaticFile;
-import spark.ModelAndView;
 import spark.template.freemarker.FreeMarkerEngine;
 import view.AddContentView;
-import view.InitView;
-
-import java.io.InputStream;
-import java.util.*;
 
 import static spark.Spark.*;
 
@@ -28,5 +25,19 @@ public class Main {
             res.type("text/css");
             return SenderStaticFile.getCSS("https://raw.githubusercontent.com/bisirkin-pv/DigitalKeyboard/master/DigitalKeyboard.css");
         });
+
+        post("/api/save","application/json",(req, res)->{
+            XmlCDN xmlCDN = new XmlCDN();
+            String result = "200";
+
+            try{
+                xmlCDN.save(req.queryParams("github_name"),req.queryParams("github_url"));
+            }catch (Exception ex){
+                result = "500";
+            }
+            return new Gson().toJson(result);
+        });
+
+
     }
 }

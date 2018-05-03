@@ -6,6 +6,7 @@ import datacore.xml.ElementCDN;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.PropertyException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -20,7 +21,7 @@ public class XmlCDN implements DataWorkerCDN{
     private final String path = "";
     private final String fileNname = "cdn.xml";
     @Override
-    public void save(String shortNameLink, String rawUrl) {
+    public void save(String shortNameLink, String rawUrl) throws JAXBException {
         CDN cdn = new CDN();
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Date date = new Date();
@@ -31,7 +32,7 @@ public class XmlCDN implements DataWorkerCDN{
                 ,dateFormat.format(date));
         cdn.setElement(elementCDN);
 
-        try {
+
             JAXBContext context = JAXBContext.newInstance(CDN.class);
             StringWriter writer = new StringWriter();
             Marshaller marshaller = context.createMarshaller();
@@ -44,9 +45,6 @@ public class XmlCDN implements DataWorkerCDN{
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }catch (JAXBException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override

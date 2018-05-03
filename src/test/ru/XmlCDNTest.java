@@ -4,6 +4,7 @@ import datacore.UrlWorker;
 import datacore.XmlCDN;
 import org.junit.Test;
 
+import javax.xml.bind.JAXBException;
 import java.io.File;
 
 import static org.junit.Assert.assertEquals;
@@ -36,7 +37,7 @@ public class XmlCDNTest {
     }
 
     @Test
-    public void testCreateFile(){
+    public void testCreateFile() throws JAXBException {
         XmlCDN xmlCDN = new XmlCDN();
         xmlCDN.save("test","test.css");
         File file = new File("cdn.xml");
