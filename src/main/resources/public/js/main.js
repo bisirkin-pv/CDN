@@ -1,9 +1,8 @@
 ;window.onload = function () {
     var sourceElement = document.querySelector("#js-save-cdn");
     sourceElement.addEventListener("click", function(obj){
-        console.log(_load("http://localhost:8080/api/save"));
+        _load("http://localhost:8080/api/save");
     }, true);
-
 };
 
 function _loadJSON(path, callback) {
@@ -27,13 +26,16 @@ function _loadJSON(path, callback) {
     return: Object actual_JSON - Processed JSON object.
 */
 function _load(path) {
-    var actual_JSON = {};
-    _loadJSON(path||'', function(response) {
-        try{
-            actual_JSON = JSON.parse(response);
-        }catch(ex){
-            console.log('ColorCode.load: Error parse JSON file.');
-        }
-    });
-    return actual_JSON;
+
+    _loadJSON(path||'', saveResult);
 };
+
+function saveResult(response) {
+    var actual_JSON = {};
+    try{
+        actual_JSON = JSON.parse(response);
+        document.querySelector("#js-result-save").innerHTML = actual_JSON.message;
+    }catch(ex){
+        console.log('Error parse JSON file.');
+    }
+}

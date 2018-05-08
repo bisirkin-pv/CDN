@@ -1,7 +1,7 @@
 import com.google.gson.Gson;
 import datacore.DataWorkerCDN;
 import datacore.XmlCDN;
-import datacore.xml.CDN;
+import datacore.RequestStatus;
 import datacore.xml.ElementCDN;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.template.Configuration;
@@ -24,7 +24,9 @@ public class Main {
         DataWorkerCDN cdn = new XmlCDN();
         cdn.load();
 
-        get("/cdn", (req, res) -> AddContentView.getView(freeMarkerEngine));
+        get("/cdn", (req, res) -> AddContentView.getView(freeMarkerEngine, "addContent.ftl", null));
+        get("/cdn/list", (req, res) -> AddContentView.getView(freeMarkerEngine, "listcdn.ftl", cdn.list()));
+
         get("/cdn/:resource", (req, res) -> {
             System.out.println(req.params(":resource"));
             ElementCDN elementCDN = cdn.getCDN(req.params(":resource"));
@@ -35,15 +37,14 @@ public class Main {
         });
 
         post("/api/save","application/json",(req, res)->{
-            String result = "200";
-
+            RequestStatus requestStatus;
             try{
                 cdn.save(req.queryParams("github_name"),req.queryParams("github_url"));
-                System.out.println("save success");
+                requestStatus = new RequestStatus(200,"Success save");
             }catch (Exception ex){
-                result = "500";
+                requestStatus = new RequestStatus(500,"Invalid save");
             }
-            return new Gson().toJson(result);
+            return new Gson().toJson(requestStatus);
         });
 
 

@@ -14,6 +14,18 @@
 <body>
 <#include "header.ftl">
 <#nested>
+<script>
+    /*
+    set class active page
+    */
+    function activePage() {
+        var elem = document.querySelector(".navbar-nav");
+        elem.querySelectorAll("a").forEach(function(currentValue, currentIndex, listObj) {
+            currentValue.parentElement.className = window.location.href === currentValue.toString() ? "active" : "";
+        })
+    }
+    activePage();
+</script>
 </body>
 </html>
 </#macro>

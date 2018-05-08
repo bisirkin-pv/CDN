@@ -12,6 +12,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -69,5 +70,21 @@ public class XmlCDN implements DataWorkerCDN{
         } catch (JAXBException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public HashMap<String, Object> list() {
+        HashMap<String, Object> list =  new HashMap<>();
+        List<List<String>> listElements = new ArrayList<>();
+        List<ElementCDN> elementsCDN = storage.getElement();
+        for(ElementCDN elementCDN: elementsCDN){
+            List<String> element = new ArrayList<>();
+            element.add(elementCDN.getName());
+            element.add(elementCDN.getType());
+            element.add(elementCDN.getSourceUrl());
+            listElements.add(element);
+        }
+        list.put("cdnlist", listElements);
+        return list;
     }
 }

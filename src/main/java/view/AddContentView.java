@@ -7,13 +7,17 @@ import java.io.IOException;
 import java.util.Map;
 
 public class AddContentView {
-    public static String getView(FreeMarkerEngine freeMarkerEngine){
+    public static String getView(FreeMarkerEngine freeMarkerEngine, String template, Map<String, Object> param){
         Map<String, Object> model = null;
         try {
             model = InitView.init();
+            if (param != null){
+                model.putAll(param);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return freeMarkerEngine.render(new ModelAndView(model,"addContent.ftl"));
+        return freeMarkerEngine.render(new ModelAndView(model,template));
     }
+
 }
