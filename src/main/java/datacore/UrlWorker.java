@@ -6,8 +6,7 @@ package datacore;
 public class UrlWorker {
 
     public static String getExtension(String path) {
-        String extension = path.substring(path.lastIndexOf(".") + 1);
-        return extension;
+        return path.substring(path.lastIndexOf(".") + 1);
     }
 
     @org.jetbrains.annotations.NotNull

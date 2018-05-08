@@ -1,5 +1,8 @@
 import com.google.gson.Gson;
+import datacore.DataWorkerCDN;
 import datacore.XmlCDN;
+import datacore.xml.CDN;
+import datacore.xml.ElementCDN;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.template.Configuration;
 import route.SenderStaticFile;
@@ -18,20 +21,24 @@ public class Main {
         freeMarkerEngine.setConfiguration(freemarkerConfiguration);
         staticFiles.location("/public");
         port(8080);
+        DataWorkerCDN cdn = new XmlCDN();
 
         get("/cdn", (req, res) -> AddContentView.getView(freeMarkerEngine));
-        get("/DigitalKeyboard", (req, res) -> {
-            System.out.println("Send css");
-            res.type("text/css");
-            return SenderStaticFile.getCSS("https://raw.githubusercontent.com/bisirkin-pv/DigitalKeyboard/master/DigitalKeyboard.css");
+        get("/cdn/:resource", (req, res) -> {
+            System.out.println(req.params(":resource"));
+            ElementCDN elementCDN = cdn.getCDN(req.params(":resource"));
+            res.type(elementCDN.getType());
+            //return SenderStaticFile.getCSS("https://raw.githubusercontent.com/bisirkin-pv/DigitalKeyboard/master/DigitalKeyboard.css");
+            return SenderStaticFile.getFile(elementCDN.getSourceUrl());
+
         });
 
         post("/api/save","application/json",(req, res)->{
-            XmlCDN xmlCDN = new XmlCDN();
             String result = "200";
 
             try{
-                xmlCDN.save(req.queryParams("github_name"),req.queryParams("github_url"));
+                cdn.save(req.queryParams("github_name"),req.queryParams("github_url"));
+                System.out.println("save success");
             }catch (Exception ex){
                 result = "500";
             }

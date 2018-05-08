@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 
 public class SenderStaticFile {
-    public static String getCSS(String resourceUrlRaw){
+    public static String getFile(String resourceUrlRaw){
         GitHubRawResource gitHubRawResource = new GitHubRawResource();
         String raw = "";
         try {
