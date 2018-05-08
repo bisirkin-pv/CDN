@@ -3,10 +3,8 @@ package datacore;
 import datacore.xml.CDN;
 import datacore.xml.ElementCDN;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.PropertyException;
+import javax.xml.bind.*;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -58,5 +56,18 @@ public class XmlCDN implements DataWorkerCDN{
             }
         }
         return new ElementCDN();
+    }
+
+    @Override
+    public void load(){
+        try {
+            JAXBContext context = JAXBContext.newInstance(CDN.class);
+            Unmarshaller unmarshaller = context.createUnmarshaller();
+            File xml = new File(fileNname);
+            storage = (CDN)unmarshaller.unmarshal(xml);
+            System.out.println("load success");
+        } catch (JAXBException e) {
+            e.printStackTrace();
+        }
     }
 }

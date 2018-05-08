@@ -22,6 +22,7 @@ public class Main {
         staticFiles.location("/public");
         port(8080);
         DataWorkerCDN cdn = new XmlCDN();
+        cdn.load();
 
         get("/cdn", (req, res) -> AddContentView.getView(freeMarkerEngine));
         get("/cdn/:resource", (req, res) -> {
