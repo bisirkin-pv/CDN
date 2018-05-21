@@ -24,6 +24,7 @@ public class Main {
         DataWorkerCDN cdn = new XmlCDN();
         cdn.load();
 
+        get("/", (req, res) -> AddContentView.getView(freeMarkerEngine, "login.ftl", null));
         get("/cdn", (req, res) -> AddContentView.getView(freeMarkerEngine, "addContent.ftl", null));
         get("/cdn/list", (req, res) -> AddContentView.getView(freeMarkerEngine, "listcdn.ftl", cdn.list()));
 
@@ -31,7 +32,6 @@ public class Main {
             System.out.println(req.params(":resource"));
             ElementCDN elementCDN = cdn.getCDN(req.params(":resource"));
             res.type(elementCDN.getType());
-            //return SenderStaticFile.getCSS("https://raw.githubusercontent.com/bisirkin-pv/DigitalKeyboard/master/DigitalKeyboard.css");
             return SenderStaticFile.getFile(elementCDN.getSourceUrl());
 
         });
