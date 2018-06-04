@@ -1,7 +1,7 @@
 ;window.onload = function () {
     var sourceElement = document.querySelector("#js-save-cdn");
     sourceElement.addEventListener("click", function(obj){
-        _load("http://localhost:8080/api/save");
+        _load("api/save");
     }, true);
 };
 
