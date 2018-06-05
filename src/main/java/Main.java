@@ -1,3 +1,6 @@
+import auth.Auth;
+import auth.AuthService;
+import auth.User;
 import com.google.gson.Gson;
 import com.sun.scenario.Settings;
 import datacore.DataWorkerCDN;
@@ -19,6 +22,8 @@ import static spark.Spark.*;
 
 public class Main {
     private static final Logger LOG = Logger.getLogger(Main.class.getName());
+    private static AuthService auth = null;
+
     public static void main(String[] args) throws IOException {
         exception(Exception.class, (e, req, res) -> e.printStackTrace());
         FreeMarkerEngine freeMarkerEngine = new FreeMarkerEngine();
@@ -32,16 +37,8 @@ public class Main {
         DataWorkerCDN cdn = new XmlCDN();
         cdn.load();
 
-        get("/", (req, res) -> AddContentView.getView(freeMarkerEngine, "login.ftl", null));
-        get("/cdn", (req, res) -> AddContentView.getView(freeMarkerEngine, "addContent.ftl", null));
-        get("/cdn/list", (req, res) -> AddContentView.getView(freeMarkerEngine, "listcdn.ftl", cdn.list()));
+        get("/", (req, res) -> AddContentView.getView(freeMarkerEngine, "login.ftl", null, false));
 
-        get("/cdn/:resource", (req, res) -> {
-            ElementCDN elementCDN = cdn.getCDN(req.params(":resource"));
-            res.type(elementCDN.getType());
-            return SenderStaticFile.getFile(elementCDN.getSourceUrl());
-
-        });
 
         post("/api/save","application/json",(req, res)->{
             RequestStatus requestStatus;
@@ -54,22 +51,76 @@ public class Main {
             return new Gson().toJson(requestStatus);
         });
 
+        post("/login","application/json", (req, res)->{
+            RequestStatus requestStatus;
+            String login = req.queryParams("inputLogin");
+            String pass = req.queryParams("inputPassword");
+            if(auth.check(login, pass)){
+                User.setSessionId(req.session().id());
+                req.session().attribute("user", req.session().id());
+                requestStatus = new RequestStatus(200,"Success");
+            }else{
+                requestStatus = new RequestStatus(500,"Invalid login or password");
+            }
+            return new Gson().toJson(requestStatus);
+        });
+
+        get("/logout", "application/json", (req, res)->{
+            RequestStatus requestStatus;
+            try{
+                req.session().removeAttribute("user");
+                User.setSessionId("");
+                requestStatus = new RequestStatus(200,"Success");;
+            }catch(Exception ex){
+                LOG.log(Level.SEVERE, ex.getMessage());
+                requestStatus = new RequestStatus(500,"Error");
+            }
+            return new Gson().toJson(requestStatus);
+        });
+
+        path("/cdn", () -> {
+            before("/*", (request, response) -> {
+                boolean authenticated = false;
+                String sessionId = request.session().attribute("user");
+                if (User.getSessionId().equals(sessionId) || request.pathInfo().equals("/")){
+                    authenticated = true;
+                }
+                if (!authenticated) {
+                    response.redirect("/");
+                }
+            });
+            get("/add", (req, res) -> AddContentView.getView(freeMarkerEngine, "addContent.ftl", null));
+            get("/list", (req, res) -> AddContentView.getView(freeMarkerEngine, "listcdn.ftl", cdn.list()));
+
+            get("/:resource", (req, res) -> {
+                ElementCDN elementCDN = cdn.getCDN(req.params(":resource"));
+                res.type(elementCDN.getType());
+                return SenderStaticFile.getFile(elementCDN.getSourceUrl());
+
+            });
+        });
+
         before((request, response) -> {
             String log = "connect ip:" + request.ip() + " >> " + request.requestMethod() + " - " + request.url();
             LOG.log(Level.INFO, log);
+        });
+
+        after("/logout",(request, response) -> {
+            System.out.println("redirect");
+            response.redirect("/");
         });
     }
 
     private static void setting() throws IOException {
 
         PropertyReader propertyReader = null;
-            propertyReader = new PropertyReader("../config/settings.properties");
-            secure(propertyReader.getProperties("ssl.keyStoreLocation")
-                    , propertyReader.getProperties("ssl.keyStorePassword")
-                    , null
-                    , null);
-            LOG.log(Level.INFO, "SSL setting success");
-
-
+        propertyReader = new PropertyReader("../config/settings.properties");
+        secure(propertyReader.getProperties("ssl.keyStoreLocation")
+                , propertyReader.getProperties("ssl.keyStorePassword")
+                , null
+                , null);
+        LOG.log(Level.INFO, "SSL setting success");
+        auth = new Auth(propertyReader.getProperties("user.name")
+                        ,propertyReader.getProperties("user.password"));
     }
 }
