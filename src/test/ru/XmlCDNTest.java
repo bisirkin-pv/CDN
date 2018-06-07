@@ -38,9 +38,10 @@ public class XmlCDNTest {
 
     @Test
     public void testCreateFile() throws JAXBException {
-        XmlCDN xmlCDN = new XmlCDN();
+        String fileNname = "cdnTest.xml";
+        XmlCDN xmlCDN = new XmlCDN(fileNname);
         xmlCDN.save("test","test.css");
-        File file = new File("cdn.xml");
+        File file = new File(fileNname);
         assertTrue(file.exists() && file.isFile());
 
     }

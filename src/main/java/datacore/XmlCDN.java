@@ -14,14 +14,20 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Класс работает с xml
  */
 public class XmlCDN implements DataWorkerCDN{
-    private final String path = "";
-    private final String fileNname = "cdn.xml";
+    private static final Logger LOG = Logger.getLogger(XmlCDN.class.getName());
+    private final String fileNname;
     private CDN storage = new CDN();
+
+    public XmlCDN(String fileNname) {
+        this.fileNname = fileNname;
+    }
+
     @Override
     public void save(String shortNameLink, String rawUrl) throws JAXBException {
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");

@@ -2,7 +2,6 @@ import auth.Auth;
 import auth.AuthService;
 import auth.User;
 import com.google.gson.Gson;
-import com.sun.scenario.Settings;
 import datacore.DataWorkerCDN;
 import datacore.XmlCDN;
 import datacore.RequestStatus;
@@ -34,7 +33,7 @@ public class Main {
         staticFiles.location("/public");
         port(8088);
         setting();
-        DataWorkerCDN cdn = new XmlCDN();
+        DataWorkerCDN cdn = new XmlCDN("cdn.xml");
         cdn.load();
 
         get("/", (req, res) -> AddContentView.getView(freeMarkerEngine, "login.ftl", null, false));
@@ -55,7 +54,7 @@ public class Main {
             RequestStatus requestStatus;
             String login = req.queryParams("inputLogin");
             String pass = req.queryParams("inputPassword");
-            if(auth.check(login, pass)){
+            if(auth.check(login.trim(), pass)){
                 User.setSessionId(req.session().id());
                 req.session().attribute("user", req.session().id());
                 requestStatus = new RequestStatus(200,"Success");
@@ -106,7 +105,6 @@ public class Main {
         });
 
         after("/logout",(request, response) -> {
-            System.out.println("redirect");
             response.redirect("/");
         });
     }
@@ -114,11 +112,11 @@ public class Main {
     private static void setting() throws IOException {
 
         PropertyReader propertyReader = null;
-        propertyReader = new PropertyReader("../config/settings.properties");
-        secure(propertyReader.getProperties("ssl.keyStoreLocation")
-                , propertyReader.getProperties("ssl.keyStorePassword")
-                , null
-                , null);
+        propertyReader = new PropertyReader("config/settings.properties");
+//        secure(propertyReader.getProperties("ssl.keyStoreLocation")
+//                , propertyReader.getProperties("ssl.keyStorePassword")
+//                , null
+//                , null);
         LOG.log(Level.INFO, "SSL setting success");
         auth = new Auth(propertyReader.getProperties("user.name")
                         ,propertyReader.getProperties("user.password"));
