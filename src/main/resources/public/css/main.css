@@ -13,3 +13,12 @@ html, body{
 .login-form{
     width: 400px;
 }
+.delete-link, .edit-link{
+    cursor: pointer;
+}
+.edit-link:hover{
+    color: #3c763d;
+}
+.delete-link:hover{
+    color: #ac2925;
+}

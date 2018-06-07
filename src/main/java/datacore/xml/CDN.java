@@ -33,4 +33,10 @@ public class CDN {
     public void setElement(String name, String sourceUrl, String type, String lastupdate){
         this.element.add(new ElementCDN(name,sourceUrl,type,lastupdate));
     }
+    public void deleteElement(int idx){
+        this.element.remove(idx);
+    }
+    public void deleteElement(ElementCDN elementCDN){
+        this.element.remove(elementCDN);
+    }
 }

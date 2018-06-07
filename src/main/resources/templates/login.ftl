@@ -31,7 +31,9 @@
         </div>
         <div class="form-group">
             <div class="col-sm-offset-9 col-sm-3">
-                <button type="button" class="btn btn-primary" id="logIn_btn">Sign in</button>
+                <button type="button" class="btn btn-primary" id="logIn_btn">
+                    <span class="fa fa-sign-in" style="font-size:16px"></span>&nbsp;&nbsp;Sign in
+                </button>
             </div>
         </div>
     </form>

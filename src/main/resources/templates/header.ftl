@@ -16,7 +16,7 @@
                 <li><a href="#">Contact</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="/logout"><span class=""></span> Logout</a></li>
+                <li><a href="/logout"><span class="fa fa-sign-out" style="font-size:20px"></span> Logout</a></li>
             </ul>
         </div>
         </#if>

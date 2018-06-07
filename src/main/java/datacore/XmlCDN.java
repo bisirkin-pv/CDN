@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -21,11 +22,11 @@ import java.util.logging.Logger;
  */
 public class XmlCDN implements DataWorkerCDN{
     private static final Logger LOG = Logger.getLogger(XmlCDN.class.getName());
-    private final String fileNname;
+    private final String fileName;
     private CDN storage = new CDN();
 
-    public XmlCDN(String fileNname) {
-        this.fileNname = fileNname;
+    public XmlCDN(String fileName) {
+        this.fileName = fileName;
     }
 
     @Override
@@ -40,6 +41,10 @@ public class XmlCDN implements DataWorkerCDN{
         storage.setElement(elementCDN);
 
 
+        saveFile();
+    }
+
+    private void saveFile() throws JAXBException {
         JAXBContext context = JAXBContext.newInstance(CDN.class);
         StringWriter writer = new StringWriter();
         Marshaller marshaller = context.createMarshaller();
@@ -47,7 +52,7 @@ public class XmlCDN implements DataWorkerCDN{
                     , Boolean.TRUE);
         marshaller.marshal(storage, writer);
 
-        try (FileOutputStream flStream = new FileOutputStream(fileNname)) {
+        try (FileOutputStream flStream = new FileOutputStream(fileName)) {
             marshaller.marshal(storage, flStream);
         } catch (IOException e) {
             e.printStackTrace();
@@ -70,12 +75,26 @@ public class XmlCDN implements DataWorkerCDN{
         try {
             JAXBContext context = JAXBContext.newInstance(CDN.class);
             Unmarshaller unmarshaller = context.createUnmarshaller();
-            File xml = new File(fileNname);
+            File xml = new File(fileName);
             storage = (CDN)unmarshaller.unmarshal(xml);
-            System.out.println("load success");
+            LOG.log(Level.INFO, "Xml file load success");
         } catch (JAXBException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public boolean delete(String shortNameLink) {
+        ElementCDN elementCDN = getCDN(shortNameLink);
+        String msg = "Deleted: " + elementCDN.getName();
+        storage.deleteElement(elementCDN);
+        try {
+            saveFile();
+            LOG.log(Level.INFO, msg);
+        } catch (JAXBException e) {
+            e.printStackTrace();
+        }
+        return true;
     }
 
     @Override

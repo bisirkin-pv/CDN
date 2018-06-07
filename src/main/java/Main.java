@@ -10,6 +10,7 @@ import freemarker.cache.ClassTemplateLoader;
 import freemarker.template.Configuration;
 import route.SenderStaticFile;
 import settings.PropertyReader;
+import spark.Request;
 import spark.template.freemarker.FreeMarkerEngine;
 import view.AddContentView;
 
@@ -38,26 +39,50 @@ public class Main {
 
         get("/", (req, res) -> AddContentView.getView(freeMarkerEngine, "login.ftl", null, false));
 
+        path("/api", () -> {
+            before("/*", (request, response) -> {
+                if (!checkAuth(request)) {
+                    response.redirect("/");
+                }
+            });
+            post("/save","application/json",(req, res)->{
+                RequestStatus requestStatus;
+                try{
+                    cdn.save(req.queryParams("github_name"),req.queryParams("github_url"));
+                    requestStatus = new RequestStatus(200,"Success save");
+                }catch (Exception ex){
+                    requestStatus = new RequestStatus(500,"Invalid save");
+                }
+                return new Gson().toJson(requestStatus);
+            });
 
-        post("/api/save","application/json",(req, res)->{
-            RequestStatus requestStatus;
-            try{
-                cdn.save(req.queryParams("github_name"),req.queryParams("github_url"));
-                requestStatus = new RequestStatus(200,"Success save");
-            }catch (Exception ex){
-                requestStatus = new RequestStatus(500,"Invalid save");
-            }
-            return new Gson().toJson(requestStatus);
+            post("/delete","application/json", (req, res)->{
+                RequestStatus requestStatus = new RequestStatus(500,"Invalid delete");;
+                try{
+                    String link = req.queryParams("link");
+                    if(link != null) {
+                        cdn.delete(req.queryParams("link"));
+                        requestStatus = new RequestStatus(200, "Success delete");
+                    }
+                }catch (Exception ex){
+                    requestStatus = new RequestStatus(500,"Invalid delete");
+                }
+                return new Gson().toJson(requestStatus);
+            });
         });
 
         post("/login","application/json", (req, res)->{
             RequestStatus requestStatus;
             String login = req.queryParams("inputLogin");
             String pass = req.queryParams("inputPassword");
-            if(auth.check(login.trim(), pass)){
+            if(login == null || pass == null) {
+                return new Gson().toJson(new RequestStatus(500,"Invalid login or password"));
+            }
+            if(auth.check(login.trim(), pass)) {
                 User.setSessionId(req.session().id());
                 req.session().attribute("user", req.session().id());
-                requestStatus = new RequestStatus(200,"Success");
+                requestStatus = new RequestStatus(200, "Success");
+
             }else{
                 requestStatus = new RequestStatus(500,"Invalid login or password");
             }
@@ -79,12 +104,7 @@ public class Main {
 
         path("/cdn", () -> {
             before("/*", (request, response) -> {
-                boolean authenticated = false;
-                String sessionId = request.session().attribute("user");
-                if (User.getSessionId().equals(sessionId) || request.pathInfo().equals("/")){
-                    authenticated = true;
-                }
-                if (!authenticated) {
+                if (!checkAuth(request)) {
                     response.redirect("/");
                 }
             });
@@ -109,14 +129,23 @@ public class Main {
         });
     }
 
+    private static boolean checkAuth(Request request) {
+        boolean authenticated = false;
+        String sessionId = request.session().attribute("user");
+        if (User.getSessionId().equals(sessionId) || request.pathInfo().equals("/")){
+            authenticated = true;
+        }
+        return authenticated;
+    }
+
     private static void setting() throws IOException {
 
-        PropertyReader propertyReader = null;
-        propertyReader = new PropertyReader("config/settings.properties");
-//        secure(propertyReader.getProperties("ssl.keyStoreLocation")
-//                , propertyReader.getProperties("ssl.keyStorePassword")
-//                , null
-//                , null);
+        PropertyReader propertyReader;
+        propertyReader = new PropertyReader("../config/settings.properties");
+        secure(propertyReader.getProperties("ssl.keyStoreLocation")
+                , propertyReader.getProperties("ssl.keyStorePassword")
+                , null
+                , null);
         LOG.log(Level.INFO, "SSL setting success");
         auth = new Auth(propertyReader.getProperties("user.name")
                         ,propertyReader.getProperties("user.password"));

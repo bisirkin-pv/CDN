@@ -1,7 +1,7 @@
 ;window.onload = function () {
     var sourceElement = document.querySelector("#js-save-cdn");
-    sourceElement.addEventListener("click", function(obj){
-        _load("api/save");
+    sourceElement.addEventListener("click", function(){
+        _load("/api/save");
     }, true);
 };
 
@@ -21,14 +21,14 @@ function _loadJSON(path, callback) {
 }
 
 /*
-    Object: ColorCode, private, Filling out the JSON file
+    Object: none, private, Filling out the JSON file
     In: String path - path to JSON file containing the syntax
     return: Object actual_JSON - Processed JSON object.
 */
 function _load(path) {
 
     _loadJSON(path||'', saveResult);
-};
+}
 
 function saveResult(response) {
     var actual_JSON = {};
