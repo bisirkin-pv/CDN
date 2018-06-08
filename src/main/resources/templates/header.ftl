@@ -6,7 +6,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="#">${project_name}</a>
+            <a class="navbar-brand" href="/">${project_name}</a>
         </div>
         <#if auth>
         <div class="collapse navbar-collapse" id="topNavBar">

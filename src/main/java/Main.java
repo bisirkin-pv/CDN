@@ -119,6 +119,8 @@ public class Main {
             });
         });
 
+        notFound((req, res) -> AddContentView.getView(freeMarkerEngine, "404.ftl", null, false));
+
         before((request, response) -> {
             String log = "connect ip:" + request.ip() + " >> " + request.requestMethod() + " - " + request.url();
             LOG.log(Level.INFO, log);

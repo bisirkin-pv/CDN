@@ -22,3 +22,16 @@ html, body{
 .delete-link:hover{
     color: #ac2925;
 }
+.error-404{
+    display: flex;
+    height: 100%;
+}
+.error-404 .error-text{
+    margin: auto;
+}
+.error-404 .error-p{
+    font-size: 10em;
+}
+.error-p-text{
+    font-size: 2em;
+}
