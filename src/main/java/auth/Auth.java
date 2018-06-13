@@ -1,7 +1,7 @@
 package auth;
 
 /**
- * Simple autorization class
+ * Simple authorization class
  */
 public class Auth implements AuthService{
     final private String standardUsername;
